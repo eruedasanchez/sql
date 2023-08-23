@@ -1,0 +1,343 @@
+% % Apunte de modulos basicos
+%
+\documentclass[a4paper,10pt]{article}
+\usepackage[paper=a4paper, hmargin=1.5cm, bottom=1.5cm, top=3.5cm]{geometry}
+\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{xspace}
+\usepackage{xargs}
+\usepackage{ifthen}
+\usepackage{aed2-tad,aed2-symb,aed2-itef}
+\usepackage{algorithmicx, algpseudocode, algorithm}
+\usepackage[colorlinks=true, linkcolor=blue]{hyperref}
+
+
+\hypersetup{%
+ % Para que el PDF se abra a página completa.
+ pdfstartview= {FitH \hypercalcbp{\paperheight-\topmargin-1in-\headheight}},
+ pdfauthor={Cátedra de Algoritmos y Estructuras de Datos II - DC - UBA},
+ pdfkeywords={Módulos básicos},
+ pdftitle={Módulos básicos de diseño},
+ pdfsubject={Módulos básicos de diseño}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% PARAMETROS A SER MODIFICADOS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%cuatrimestre de acuerdo a la opcion
+\newcommand{\Cuatrimestre}{$2^\mathrm{do}$ cuatrimestre de 2021}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% OTRAS OPCIONES QUE NO HAY QUE MODIFICAR
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%opening
+\title{Resumen SQL}
+\author{Programacion Frontend}
+\date{Julio 2023}
+
+% Acomodo fancyhdr.
+\pagestyle{fancy}
+\thispagestyle{fancy}
+\lhead{Resumen SQL}
+\rhead{Julio 2023}
+\cfoot{\thepage /\pageref{LastPage}}
+\renewcommand{\footrulewidth}{0.4pt}
+\setlength{\headheight}{13pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% COMANDOS QUE ALGUN DIA PUEDAN FORMAR UN PAQUETE.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\moduloNombre}[1]{\textbf{#1}}
+
+\let\NombreFuncion=\textsc
+\let\TipoVariable=\texttt
+\let\ModificadorArgumento=\textbf
+\newcommand{\res}{$res$\xspace}
+\newcommand{\tab}{\hspace*{7mm}}
+
+\newcommandx{\TipoFuncion}[3]{%
+  \NombreFuncion{#1}(#2) \ifx#3\empty\else $\to$ \res\,: \TipoVariable{#3}\fi%
+}
+\newcommand{\In}[2]{\ModificadorArgumento{in} \ensuremath{#1}\,: \TipoVariable{#2}\xspace}
+\newcommand{\Out}[2]{\ModificadorArgumento{out} \ensuremath{#1}\,: \TipoVariable{#2}\xspace}
+\newcommand{\Inout}[2]{\ModificadorArgumento{in/out} \ensuremath{#1}\,: \TipoVariable{#2}\xspace}
+\newcommand{\Aplicar}[2]{\NombreFuncion{#1}(#2)}
+
+\newlength{\IntFuncionLengthA}
+\newlength{\IntFuncionLengthB}
+\newlength{\IntFuncionLengthC}
+%InterfazFuncion(nombre, argumentos, valor retorno, precondicion, postcondicion, complejidad, descripcion, aliasing)
+\newcommandx{\InterfazFuncion}[9][4=true,6,7,8,9]{%
+  \hangindent=\parindent
+  \TipoFuncion{#1}{#2}{#3}\\%
+  \textbf{Pre} $\equiv$ \{#4\}\\%
+  \textbf{Post} $\equiv$ \{#5\}%
+  \ifx#6\empty\else\\\textbf{Complejidad:} #6\fi%
+  \ifx#7\empty\else\\\textbf{Descripción:} #7\fi%
+  \ifx#8\empty\else\\\textbf{Aliasing:} #8\fi%
+  \ifx#9\empty\else\\\textbf{Requiere:} #9\fi%
+}
+
+\newenvironment{Interfaz}{%
+  \parskip=2ex%
+  \noindent\textbf{\Large Interfaz}%
+  \par%
+}{}
+
+\newenvironment{Representacion}{%
+  \vspace*{2ex}%
+  \noindent\textbf{\Large Representación}%
+  \vspace*{2ex}%
+}{}
+
+\newenvironment{Algoritmos}{%
+  \vspace*{2ex}%
+  \noindent\textbf{\Large Algoritmos}%
+  \vspace*{2ex}%
+}{}
+
+
+\newcommand{\Titulo}[1]{
+  \vspace*{1ex}\par\noindent\textbf{\large #1}\par
+}
+
+\newenvironmentx{Estructura}[2][2={estr}]{%
+  \par\vspace*{2ex}%
+  \TipoVariable{#1} \textbf{se representa con} \TipoVariable{#2}%
+  \par\vspace*{1ex}%
+}{%
+  \par\vspace*{2ex}%
+}%
+
+\newboolean{EstructuraHayItems}
+\newlength{\lenTupla}
+\newenvironmentx{Tupla}[1][1={estr}]{%
+    \settowidth{\lenTupla}{\hspace*{3mm}donde \TipoVariable{#1} es \TipoVariable{tupla}$($}%
+    \addtolength{\lenTupla}{\parindent}%
+    \hspace*{3mm}donde \TipoVariable{#1} es \TipoVariable{tupla}$($%
+    \begin{minipage}[t]{\linewidth-\lenTupla}%
+    \setboolean{EstructuraHayItems}{false}%
+}{%
+    $)$%
+    \end{minipage}
+}
+
+\newcommandx{\tupItem}[3][1={\ }]{%
+    %\hspace*{3mm}%
+    \ifthenelse{\boolean{EstructuraHayItems}}{%
+        ,#1%
+    }{}%
+    \emph{#2}: \TipoVariable{#3}%
+    \setboolean{EstructuraHayItems}{true}%
+}
+
+\newcommandx{\RepFc}[3][1={estr},2={e}]{%
+  \tadOperacion{Rep}{#1}{bool}{}%
+  \tadAxioma{Rep($#2$)}{#3}%
+}%
+
+\newcommandx{\Rep}[3][1={estr},2={e}]{%
+  \tadOperacion{Rep}{#1}{bool}{}%
+  \tadAxioma{Rep($#2$)}{true \ssi #3}%
+}%
+
+\newcommandx{\Abs}[5][1={estr},3={e}]{%
+  \tadOperacion{Abs}{#1/#3}{#2}{Rep($#3$)}%
+  \settominwidth{\hangindent}{Abs($#3$) \igobs #4: #2 $\mid$ }%
+  \addtolength{\hangindent}{\parindent}%
+  Abs($#3$) \igobs #4: #2 $\mid$ #5%
+}%
+
+\newcommandx{\AbsFc}[4][1={estr},3={e}]{%
+  \tadOperacion{Abs}{#1/#3}{#2}{Rep($#3$)}%
+  \tadAxioma{Abs($#3$)}{#4}%
+}%
+
+
+\newcommand{\DRef}{\ensuremath{\rightarrow}}
+
+\begin{document}
+
+%pagina de titulo
+\thispagestyle{empty}
+\maketitle
+\tableofcontents
+
+\newpage
+
+
+\section{Clausula SELECT}
+
+\TipoVariable{SELECT * FROM users} se utiliza para seleccionar todo desde la tabla \TipoVariable{users}. Ahora, vamos a insertar en la tabla users los campos (columnas) name, surname y age de la siguiente manera:
+\newline
+\newline
+\TipoVariable{INSERT INTO users (name,surname,age)  VALUES ('Ezequiel', 'Rueda Sanchez', '24')}
+\newline
+\newline
+Observamos que al ejecutar esta instrucción obtenemos:
+\newline
+\newline
+\TipoVariable{'Result: query executed successfully. Took 5ms'}.
+\newline
+\newline
+Esto es así porque cualquier operación (en este caso \TipoVariable{INSERT}) que realicemos con SQL la toma como una consulta.
+\newline
+\newline
+Ahora si ejecutamos \TipoVariable{SELECT * FROM users} nos devuelve la siguiente tabla:
+\newline
+\newline
+\begin{tabular}{|c|c|c|}
+	\hline
+	Name     &  Surname         &   Age     \\ \hline
+	Ezequiel &  Rueda Sanchez   &   24      \\ \hline
+\end{tabular}
+\newline
+\newline
+\newline
+También puedo agregar varios usuarios al mismo tiempo de la siguiente manera:
+\newline
+\newline
+\TipoVariable{INSERT into users (name, surname,  age) VALUES ('Pedro', 'Rodriguez', 26), ('Carlos', 'Sanchez', 18), ('Francisco', 'Alvarez', 52)}
+\newline
+\newline
+Ahora, ejecuto \TipoVariable{SELECT * FROM users} para ver el nuevo estado de la tabla.
+\newline
+\newline
+Al ejecutar \TipoVariable{SELECT age FROM users}, filtramos la tabla para que solo nos devuelva el campo \TipoVariable{age} con sus respectivos registros.
+\newline
+\newline
+Ahora insertamos el registro \TipoVariable{('Francisco', 'Alvarez', 52)} y tenemos dos registros iguales. 
+\newline
+\newline
+¿Como los podemos diferenciar?
+\newline
+\newline
+No hay manera de diferenciarlos. Para eso, utilizamos los \textbf{identificadores}. Tenemos los $primary$ $keys$ y los $foreign$ $keys$.
+\newline
+\newline
+Para ello, vamos a modificar la tabla colocando un nuevo campo llamado \TipoVariable{id\_user} de tipo integer. 
+\newline
+\newline
+Ahora, al mostrar la tabla (\TipoVariable{SELECT * FROM users}), observamos que todos los registros tienen el campo \TipoVariable{id\_user} con \TipoVariable{NULL}.
+\newline
+\newline
+Entonces, vamos a borrar todos los registros ejecutando \TipoVariable{DELETE FROM users}.
+\newline
+\newline
+Ahora, vuelvo a modificar la tabla y puedo aplicar la opción \TipoVariable{AI} (Auto Increment) para que cada registro sea unico y automáticamente se me aplica la opción \TipoVariable{PK} (Primary Key) porque nos garantiza una integridad referencial, es decir, podemos hacer referencias a registros sin tener valores duplicados.
+\newline
+\newline
+Por lo tanto, ahora a medida que vayamos insertando registros el id se va a auto incrementar en uno para que no haya ninguna posibilidad de que dos registros sean exactamente iguales. Luego, armamos una tabla nueva que llamamos \TipoVariable{turnos\_medicos} donde insertamos los campos \TipoVariable{id\_turno}, \TipoVariable{profesional}, \TipoVariable{id\_user} (F(oreign) K(ey) o clave foranea), \TipoVariable{motivo} y \TipoVariable{horario}.
+\newline
+\newline
+Decimos que una clave es foránea en una tabla cuando hace referencia a una clave primaria (PK) de otra tabla y se le debe colocar el mismo nombre tanto en la tabla como en la tabla donde es PK.
+\newline
+\newline
+De ahora en adelante, vamos a trabajar con la base de datos de \textbf{Northwind}.
+\newline
+\newline
+\newline
+Supongamos que queremos cambiar el nombre del campo \TipoVariable{LastName}. No lo puedo hacer desde la tabla pero puedo modificarlo localmente con \TipoVariable{SELECT LastName AS surname FROM Employees}.
+\newline
+\newline
+De ahora en adelante, esta renombrado localmente como \TipoVariable{surname} aunque en la tabla el campo sigue siendo \TipoVariable{LastName}.
+\newline
+\newline
+También podemos renombrarlo varios campos mediante comas. Por ejemplo: 
+\newline
+\newline
+\TipoVariable{SELECT LastName AS surname, FirstName AS name  FROM Employees}
+\newline
+\newline
+Por lo tanto, utilizamos la cláusula \TipoVariable{AS} para que una tabla/campo sea mas declarativo o descriptivo.
+\newline
+\newline
+Ahora, volvemos a ver toda la de products ejecutando \TipoVariable{SELECT * FROM Products}.
+\newline
+\newline
+Luego, quiero ordenar la tabla pero según el precio (campo \TipoVariable{PRICE}) de forma creciente. Sabemos que por defecto, los productos están ordenados según el numero de \TipoVariable{ID} porque son autoincrementables. Para ello ejecutamos las siguientes lineas:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products ORDER BY price}
+\newline
+\newline
+También podríamos ejecutar \TipoVariable{SELECT * FROM Products ORDER BY price ASC}. Y  obtenemos el mismo resultado.
+\newline
+\newline
+Si queremos ordenar los precios de forma decreciente, ejecutamos las siguientes lineas:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products ORDER BY price DESC}
+\newline
+\newline
+\TipoVariable{ASC} y \TipoVariable{DESC} funcionan tanto para los precios como para el campo text \TipoVariable{ProductName}. En este caso, por defecto o \TipoVariable{ASC} ordena alfabeticamente de menor a mayor (de la A a la Z) y \TipoVariable{DESC} ordena alfabeticamente de mayor a menor (de la Z a la A).
+\newline
+\newline
+Notemos que la tabla ordena de acuerdo a la siguiente jerarquía:
+\newline
+\newline
+\TipoVariable{NULL $>$ NUMEROS $>$ CARACTERES ESPECIALES $>$ CARACTERES COMUNES}
+\newline
+\newline
+Por lo tanto, si agregamos un registro \TipoVariable{NULL} en la tabla de \TipoVariable{Products} y ejecutamos:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products ORDER BY ProductName ASC}
+\newline
+\newline
+El registro \TipoVariable{NULL} se convierte en el primero de la tabla.
+\newline
+\newline
+Ahora, si quiero colocar todos los registros NULL al final de la tabla ejecuto:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products ORDER BY ProductName ASC NULLS LAST}
+\newline
+\newline
+\TipoVariable{ASC} esta ordenando de forma creciente, es decir, los \TipoVariable{NULLs} van al principio pero al ejecutar \TipoVariable{NULLs LAST} estoy indicando que los voy a colocar al final de la tabla.
+\newline
+\newline
+Ahora, si quiero colocar todos los registros NULL al principio de la tabla cuando estoy ordenando de forma descendente ejecuto:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products ORDER BY ProductName DESC NULLS FIRST}
+\newline
+\newline
+\TipoVariable{ASC} esta ordenando de forma creciente, es decir, los \TipoVariable{NULLs} van al principio pero al ejecutar \TipoVariable{NULLs LAST} estoy indicando que los voy a colocar al final de la tabla.
+\newline
+\newline
+Ahora, si queremos ordenar la tabla de una manera \TipoVariable{RANDOM} ejecutamos:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products ORDER BY RANDOM()}
+\newline
+\newline
+Ahora, si ejecutamos:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products ORDER BY ProductName, SupplierID DESC}
+\newline
+\newline
+Se ordena primero respecto a \TipoVariable{ProductName} y en caso de que los registros sean iguales, en base a \TipoVariable{SupplierID}. Ahora, si queremos eliminar todos los repetidos por ejemplo de \TipoVariable{ProductName} ejecutamos:
+\newline
+\newline
+\TipoVariable{SELECT DISTINCT ProductName FROM Products}
+\newline
+\newline
+Con esto eliminamos todas las repeticiones de \TipoVariable{NULL} y solo nos quedamos con una (con la primera aparición).
+\newline
+\newline
+Ademas, podemos ordenar los registros del campo ProductName ejecutando lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT DISTINCT ProductName FROM Products ORDER BY ProductName DESC}
+\newline
+\newline
+Por lo tanto, primero solo se deja la primera aparición de cada producto y luego se ordena los mismos de manera decreciente.
+
+\end{document}
