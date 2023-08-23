@@ -339,5 +339,42 @@ Ademas, podemos ordenar los registros del campo ProductName ejecutando lo siguie
 \newline
 \newline
 Por lo tanto, primero solo se deja la primera aparición de cada producto y luego se ordena los mismos de manera decreciente.
+\newpage
+
+\section{Clausula WHERE}
+
+Supongamos que queremos ver cual es el nombre asociado al \TipoVariable{productId} numero 14. Entonces, comenzamos ejecutando:
+\newline
+\newline
+\TipoVariable{SELECT ProductName FROM Products} obteniendo el listado de productos.
+\newline
+\newline
+Ahora si queremos ver cual es el nombre asociado al productId numero 14 ejecutamos:
+\newline
+\newline
+\TipoVariable{SELECT ProductName FROM Products WHERE ProductID = 14}
+\newline
+\newline
+Si queremos obtener toda la información del registro con \TipoVariable{ProductID = 14} ejecutamos:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products WHERE ProductID = 14}
+\newline
+\newline
+Ahora, supongamos que solo tenemos un presupuesto de 40USD y quiero ver que productos puedo comprar. Para ello, ejecuto lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products WHERE Price $<$ 40}
+\newline
+\newline
+Ahora, supongamos que queremos eliminar el registro \TipoVariable{NULL} con \TipoVariable{ProductID = 80}. Para ello, ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{DELETE FROM Products WHERE ProductID = 80}
+\newline
+\newline
+Observemos que no es necesario escribir \TipoVariable{*} luego del \TipoVariable{DELETE}.
+
+
 
 \end{document}
