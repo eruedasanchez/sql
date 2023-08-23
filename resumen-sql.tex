@@ -375,6 +375,27 @@ Ahora, supongamos que queremos eliminar el registro \TipoVariable{NULL} con \Tip
 \newline
 Observemos que no es necesario escribir \TipoVariable{*} luego del \TipoVariable{DELETE}.
 
+\section{Clausula UPDATE}
+
+Supongamos que queremos el precio del producto \TipoVariable{Chais} (\TipoVariable{ProductID = 1}) que es de 18USD por 20USD. Para ello, ejecutamos:
+\newline
+\newline
+\TipoVariable{UPDATE Products SET Price = 20 WHERE ProductId = 1}
+\newline
+\newline
+Luego, ejecutamos \TipoVariable{SELECT * FROM Products} para ver el nuevo estado de la tabla.
+\newline
+\newline
+Ahora, si queremos modificar el valor de mas de un campo nos alcanza con enumerar el campo seguido de una coma (,) y listo.
+\newline
+\newline
+Por ejemplo, \TipoVariable{UPDATE Products SET Price = 20, ProductName = 'Chais modificado' WHERE ProductId = 1}
+\newline
+\newline
+Para modificar el campo \TipoVariable{Price} y \TipoVariable{ProductName}.   
+\newpage
+
+
 
 
 \end{document}
