@@ -395,6 +395,30 @@ Por ejemplo, \TipoVariable{UPDATE Products SET Price = 20, ProductName = 'Chais 
 Para modificar el campo \TipoVariable{Price} y \TipoVariable{ProductName}.   
 \newpage
 
+\section{Clausula AND}
+
+Ahora, vamos a la tabla de clientes (Customers). Entonces, si queremos consultar por aquellos que se encuentran entre el \TipoVariable{CustomerId 50} inclusive y el \TipoVariable{CustomerId 55} exclusive, utilizamos la clausula \TipoVariable{AND} de la siguiente manera:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Customers WHERE CustomerId $>$=  50 AND CustomerId $<$ 55}
+
+\section{Clausula OR}
+
+Ahora, vamos a la tabla de empleados (Employees) aplicando \TipoVariable{SELECT * FROM Employees}.
+\newline
+\newline
+Luego, queremos ver los datos de las empleadas Nancy o Anne. Para ello, aplicamos \TipoVariable{OR} que funciona como union, es decir:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Employees WHERE FirstName = $"$Nancy$"$ OR FirstName = $"$Anne$"$}
+
+\section{Clausula NOT}
+
+Volviendo a la tabla de productos (Products), queremos acceder a todos aquellos productos donde su precio no es mayor a 40. Para ello, utilizamos la cláusula \TipoVariable{NOT} de la siguiente manera:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products WHERE NOT Price $>$ 40}  
+
 
 
 
