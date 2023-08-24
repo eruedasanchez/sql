@@ -783,6 +783,207 @@ Ahora, como queremos seleccionar a aquellos empleados tales que las \TipoVariabl
 \TipoVariable{)}
 \newline
 \TipoVariable{) }
+\newpage
+
+\section{Joins}
+
+Los \textbf{Joins} son una operación que utilizamos en las bases de datos para poder combinar la información de dos o mas tablas en una base de datos pero que esa información se devuelva en una sola tabla.  
+
+\subsection{Cross Join}
+
+Si ejecutamos:
+\newline
+\TipoVariable{SELECT * FROM Employees e CROSS JOIN Orders o}
+\newline
+\newline
+Obtenemos una sola tabla con los campos unidos de \TipoVariable{Employees} y \TipoVariable{Orders} de 1960 registros. Como la lista de empleados esta compuesta por 10 registros y la tabla de \TipoVariable{Orders} esta compuesta por 196 registros, al aplicar un \textbf{Cros Join}, le asigna a cada empleado cada uno de los 196 registros y los combina en una sola tabla.
+\newline
+\newline
+Esto es analogo a ejecutar \TipoVariable{SELECT * FROM Employees e, Orders o}.
+
+\subsection{Inner Join (Join)}
+
+Ahora, si queremos que se unan los datos del empleado que vendió cada producto (se encuentran en \TipoVariable{Orders}) ejecutamos lo siguiente.
+
+\subsection{Creación de Tablas}
+
+Para crear una Tabla directamente a partir de lineas de código, ejecutamos las siguientes lineas:
+\newline
+\newline
+\TipoVariable{CREATE TABLE $"$Rewards$"$ (recompensa) (}
+\newline
+\TipoVariable{$"$RewardID$"$ INTEGER,}
+\newline
+\TipoVariable{$"$EmployeeID$"$ INTEGER,}
+\newline
+\TipoVariable{$"$Reward$"$ INTEGER,}
+\newline
+\TipoVariable{$"$Month$"$ TEXT.}
+\newline
+\TipoVariable{PRIMARY KEY($"$RewardID$"$ AUTOINCREMENT)}
+\newline
+\TipoVariable{)}
+\newline
+\newline
+En este caso \TipoVariable{RewardID} es la clave primaria, \TipoVariable{EmployeeID} es el empleado que recibe la recompensa, \TipoVariable{Reward} indica la recompensa en USD y \TipoVariable{Month} indica el mes.
+\newline
+\newline
+Luego, indicamos que \TipoVariable{RewardID} va a ser la clave primaria autoincrementable ejecutando:
+\newline
+\newline
+\TipoVariable{PRIMARY KEY($"$RewardID$"$ AUTOINCREMENT)}    
+\newline
+\newline
+Finalmente, obtenemos la tabla con todos los campos declarados anteriormente vacios porque todavía no les insertamos datos.
+\newline
+\newline
+Ahora, vamos a insertar 6 datos. 5 datos de empleados diferentes donde en cada mes un empleado distinto va a recibir un premio y un mes donde ningún empleado recibe un premio. Es decir:
+\newline
+\newline
+\TipoVariable{INSERT INTO Rewards (EmployeeID, Reward, Month) VALUES}
+\newline
+\newline
+\TipoVariable{(3, 200, $"$January$"$),}
+\newline
+\TipoVariable{(2, 180, $"$February$"$),}
+\newline
+\TipoVariable{(5, 250, $"$March$"$),}
+\newline
+\TipoVariable{(1, 280, $"$April$"$),}
+\newline
+\TipoVariable{(8, 160, $"$March$"$),}
+\newline
+\TipoVariable{(null, null, $"$June$"$)}
+\newline
+\newline
+Entonces, si queremos unir la información de los empleados que recibieron los premios ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Employees e}
+\newline
+\TipoVariable{INNER JOIN Rewards r ON e.EmployeeID = r.EmployeeID}
+\newline
+\newline
+Pero si queremos obtener el nombre, la recompensa y el mes ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT FirstName, Reward, Month FROM Employees e}
+\newline
+\TipoVariable{INNER JOIN Rewards r ON e.EmployeeID = r.EmployeeID}
+\newline
+\newline
+Por lo tanto, un \TipoVariable{INNER JOIN} representa la intersección entre conjuntos.
+
+\subsection{Left Join}
+
+Ahora, si quiero ejecutar un \textbf{Left Join} ejecuto lo siguiente:  
+\newline
+\newline
+\TipoVariable{SELECT FirstName, Reward, Month FROM Employees e}
+\newline
+\TipoVariable{LEFT JOIN Rewards r ON e.EmployeeID = r.EmployeeID}
+\newline
+\newline
+Por lo tanto, un \textbf{Left Join} representa la diferencia entre conjuntos (en este caso \TipoVariable{Employees - Rewards}). Es decir, muestra a todos los empleados de la tabla \TipoVariable{Employees} y solo les une la recompensa y el mes a aquellos en los que coincide su \TipoVariable{ID}. Los demás campos los deja en \TipoVariable{NULL}. 
+\newline
+\newline
+Ahora, si queremos que la diferencia sea (en este caso \TipoVariable{Rewards - Employees}) ejecutamos:
+\newline
+\newline
+\TipoVariable{SELECT FirstName, Reward, Month FROM Rewards r}
+\newline
+\TipoVariable{LEFT JOIN Employees e ON e.EmployeeID = r.EmployeeID}
+\newline
+\newline
+Observemos que en SQLite no podemos ejecutar un \textbf{Right Join}, es decir:
+\newline
+\newline
+\TipoVariable{SELECT FirstName, Reward, Month FROM Employees e}
+\newline
+\TipoVariable{RIGHT JOIN Rewards r ON e.EmployeeID = r.EmployeeID}
+\newline
+\newline
+Entonces, lo que hacemos para lograr esto es invertir el orden de las tablas como se menciono anteriormente pero debemos aclararlo en un comentario.
+\newline
+\newline
+Ahora, si queremos unir en una sola tabla el resultado de dos consultas utilizamos \TipoVariable{UNION}. Es decir, ejecutamos:
+\newline
+\newline
+\TipoVariable{SELECT FirstName, Reward, Month FROM Employees e}
+\newline
+\TipoVariable{LEFT JOIN Rewards r ON e.EmployeeID = r.EmployeeID}
+\newline
+\newline
+\TipoVariable{SELECT FirstName, Reward, Month FROM Rewards r}
+\newline
+\TipoVariable{LEFT JOIN Employees e ON e.EmployeeID = r.EmployeeID}
+\newline
+\newline 
+Por lo tanto, estamos simulando un \TipoVariable{FULL JOIN} uniendo un \TipoVariable{LEFT JOIN} con una simulación de \TipoVariable{RIGHT JOIN}.
+
+\subsection{Union}
+
+\textbf{Union} es una cláusula que se utiliza para combinar dos o mas tablas.
+\newline
+\newline
+\textbf{.} \TipoVariable{UNION ALL} devuelve la suma de las dos consultas. Por ejemplo, si tengo una tabla con 4 filas y otra con 3 filas, el resultado es una tabla con 7 filas donde los campos son coincidentes.
+\newline
+\newline
+\textbf{.} \TipoVariable{UNION} también devuelve la suma de las dos consultas pero solo deja la primera aparición de todas las filas que están repetidas.
+\newpage
+
+\section{Cardinalidad}
+
+La \textbf{carnalidad} en el contexto de base de datos se utiliza para especificar cual es la relación entre dos entidades (generalmente tablas).
+\newline
+\newline
+Comencemos viendo el ejemplo de la base de datos de NorthWind que venimos estudiando.
+\newline
+\newline
+\textbf{.} La tabla \TipoVariable{Customers} se une con la tabla \TipoVariable{Orders} mediante el \TipoVariable{CustomerID}. En este caso la relación es \TipoVariable{1:n} porque 1 orden puede haber sido hecho únicamente por un cliente (\TipoVariable{customer}) y \TipoVariable{n} el cliente puede realizar muchas (\TipoVariable{n}) ordenes.
+\newline
+\newline
+\textbf{.} La tabla \TipoVariable{Employees} se une con la tabla \TipoVariable{Orders} mediante el \TipoVariable{EmployeeID}. En este caso la relación es \TipoVariable{1:n} porque 1 orden puede haber sido hecho únicamente por un vendedor/empleado (\TipoVariable{employee}) y \TipoVariable{n} porque el empleado puede realizar muchas (\TipoVariable{n}) ordenes/ventas.
+\newline
+\newline
+\textbf{.} La tabla \TipoVariable{Shippers} se une con la tabla \TipoVariable{Orders} mediante el \TipoVariable{ShipperID}. En este caso la relación es \TipoVariable{1:n} porque 1 empresa solo se puede encargar del envío de un producto y \TipoVariable{n} porque una empresa se encargar de muchos (\TipoVariable{n}) envíos.
+\newline
+\newline
+\textbf{.} La tabla \TipoVariable{Orders} se une con la tabla \TipoVariable{OrderDetail} mediante el \TipoVariable{OrderID}. En este caso la relación es \TipoVariable{1:n} porque los detalles de una orden se corresponden únicamente con 1 orden y \TipoVariable{n} porque 1 orden puede tener muchos (\TipoVariable{n}) detalles.
+\newline
+\newline
+\textbf{.} La tabla \TipoVariable{OrderDetails} se une con la tabla \TipoVariable{Products} mediante el \TipoVariable{ProductID}. En este caso la relación es \TipoVariable{n:1} porque un detalle hace referencia únicamente a 1 producto y \TipoVariable{n} porque muchos (\TipoVariable{n}) productos puede hacen referencia a diferentes detalles de orden.
+\newline
+\newline
+\textbf{.} La tabla \TipoVariable{Products} se une con la tabla \TipoVariable{Suppliers} mediante el \TipoVariable{SupplierID}. En este caso la relación es \TipoVariable{n:1} porque un producto solo puede estar relacionado a un proveedor (supplier) y \TipoVariable{n} porque un proveedor puede proveer de varios (\TipoVariable{n}) productos.
+\newline
+\newline
+\textbf{.} La tabla \TipoVariable{Products} se une con la tabla \TipoVariable{Categories} mediante el \TipoVariable{CategoryID}. En este caso la relación es \TipoVariable{n:1} porque 1 producto solo puede estar relacionado a una categoría (category) y \TipoVariable{n} porque un categoría puede estar asociada a varios (\TipoVariable{n}) productos.
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+\TipoVariable{}
+
+
 
 
 
