@@ -960,33 +960,125 @@ Comencemos viendo el ejemplo de la base de datos de NorthWind que venimos estudi
 \newline
 \textbf{.} La tabla \TipoVariable{Products} se une con la tabla \TipoVariable{Categories} mediante el \TipoVariable{CategoryID}. En este caso la relación es \TipoVariable{n:1} porque 1 producto solo puede estar relacionado a una categoría (category) y \TipoVariable{n} porque un categoría puede estar asociada a varios (\TipoVariable{n}) productos.
 
+\section{Normalización}
 
+La normalización es un proceso dentro del diseño de la base de datos que sirve para eliminar anomalías en los datos, hacer que la base de datos sea mas eficiente y poder hacer consultas mas efectivas.
+\newpage
 
+\section{Indices}
 
- 
+Un \textbf{indice} tiene el objetivo de mejorar el rendimiento de las consultas en una base de datos organizándolos correctamente.
+\newline
+\newline
+\textbf{.} Indices primarios o únicos (primary key por ejemplo): Los indices primarios no pueden tener valores nulos, es decir, es el único tipo de indice que no permite tener valores nulos
+\newline
+\newline
+Por ejemplo, vamos a crear un indice en campo LastName de la tabla Employees de la siguiente manera:
+\newline
+\newline
+\TipoVariable{CREATE INDEX name on Employees (FirstName)}
+\newline
+\newline
+El problema de esto es que el campo \TipoVariable{FirstName} se convierte en un indice y puede admitir campos nulos y campos duplicados.
+\newline
+\newline
+Si agregamos \TipoVariable{UNIQUE} adelante de \TipoVariable{INDEX}, crea un indice único para el nombre (\TipoVariable{FirstName}). Es decir, cuando se quiera insertar un valor que se repita, la consulta no nos va a insertar el registro porque es un valor repetido o duplicado gracias al \TipoVariable{UNIQUE}.
+\newline
+\newline
+\TipoVariable{CREATE UNIQUE INDEX name on Employees (FirstName, LastName)}
+\newline
+\newline
+También puedo crear campos únicos combinados, es decir, los campos \TipoVariable{FirstName} y \TipoVariable{LastName} son únicos, es decir, cuando quiera insertar un campo donde el nombre y apellido son repetidos, me va a arrojar un error.
+\newline
+\newline
+\textbf{Ejemplo}
+\newline
+\newline
+Queremos consultar todos los productos que tuvieron mas de 10 ventas y que se vendieron luego de la fecha \TipoVariable{$"$1996-07-04$"$}. Es decir: 
+\newline
+\newline
+\TipoVariable{SELECT * FROM OrderDetails od JOIN Orders o WHERE o.OrderID = od.OrderID AND OrderDate $>$ $"$1996-07-04$"$ AND od.Quantity $>$ 10}
+\newline
+\newline
+Como utilizamos muchos los campos \TipoVariable{OrderDate} y \TipoVariable{Quantity}, creamos los siguientes indices:
+\newline
+\newline
+\TipoVariable{CREATE INDEX idx\_orderdetails\_quantity ON OrderDetails (Quantity);}
+\newline
+\TipoVariable{CREATE INDEX idx\_orders\_quantity ON Orders (OrderDate)}
+\newline
+\newline
+Luego, volvemos a ejecutar la consulta: 
+\newline
+\newline
+\TipoVariable{SELECT * FROM OrderDetails od JOIN Orders o WHERE o.OrderID = od.OrderID AND OrderDate $>$ $"$1996-07-04$"$ AND od.Quantity $>$ 10}
+\newline
+\newline
+Y observamos que no se produce una mejora en el rendimiento (sigue demorando entre 17ms y 20ms).
+\newline
+\newline
+Ahora, si quiero eliminar los indices, ejecuto:
+\newline
+\newline
+\TipoVariable{DROP INDEX idx\_orderdetails\_quantity;}
+\newline
+\TipoVariable{DROP INDEX idx\_orders\_quantity}
+\newline
+\newline
+Ahora, si ejecutamos nuevamente la consulta:
+\newline
+\newline
+\TipoVariable{SELECT * FROM OrderDetails od JOIN Orders o WHERE o.OrderID = od.OrderID AND OrderDate $>$ $"$1996-07-04$"$ AND od.Quantity $>$ 10}
+\newline
+\newline
+Vemos que demora entre 28ms y 31ms. Demora mas que antes de borrar los indices.
+\newpage
 
+\section{Vistas}
 
+Las vistas son tablas virtuales. Las vistas no almacenan datos sino que referencian a una consulta que nos devuelve una vista.
+\newline
+\newline
+\textbf{Ejemplo}
+\newline
+\newline
+Comenzamos consultando por aquellos productos donde el \TipoVariable{ProductID $>$ 20} y lo ordenamos por el id del producto de forma descendente. Es decir, seleccionamos y ordenamos los productos del ultimo al primero que fue cargado. O sea:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products WHERE ProductID > 20 ORDER BY ProductID DESC} 
+\newline
+\newline
+Ahora, si queremos obtener únicamente el id, name y el price ejecutamos:
+\newline
+\newline
+\TipoVariable{SELECT ProductID, ProductName, Price FROM Products WHERE ProductID $>$ 20 ORDER BY ProductID DESC}
+\newline
+\newline
+Por lo tanto, a esta tabla resultante le puede crear una \textbf{vista} de la siguiente manera:
+\newline
+\newline
+\TipoVariable{CREATE VIEW Productos\_simplificados AS SELECT ProductID, ProductName, Price FROM Products WHERE ProductID $>$ 20 ORDER BY ProductID DESC}
+\newline
+\newline
+Ahora, puedo ver esta tabla ejecutando simplemente \TipoVariable{SELECT * FROM Productos\_simplificados}
+\newline
+\newline
+Por ultimo, si queremos eliminar una vista ejecutamos:
+\newline
+\newline
+\TipoVariable{DROP VIEW IF EXISTS Productos\_simplificados}
+\newline
+\newline
+La clausula \TipoVariable{IF EXISTS} la ejecutamos para evitar tener errores porque por ejemplo si borramos la vista ejecutando:
+\newline
+\newline
+\TipoVariable{DROP VIEW Productos\_simplificados}
+\newline
+\newline
+Borramos la vista correctamente pero si volvemos a ejecutar \TipoVariable{DROP VIEW Productos\_simplificados}, arroja un error porque la vista ya fue eliminada. Entonces, con \TipoVariable{IF EXISTS} nos aseguramos chequear si existe la vista antes de borrarla.
 
+\section{Funciones definidas por el usuario}
 
-
-
-
-
-
-
-
-
-
-
-	
-
-
-\TipoVariable{}
-
-
-
-
-
-
+Una función definida por el usuario es una función que puede ser utilizada por SQLite y esta creada para poder recibir la información que puede ser ejecutada en una consulta, es decir, la función toma esos valores, los procesa y devuelve una salida. Ademas, debe estar registrada en SQLite. A su vez, esta función no va a estar creada en SQLite sino en un lenguaje anfitrión como por ejemplo Python  
 
 \end{document}
