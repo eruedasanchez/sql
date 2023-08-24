@@ -618,10 +618,171 @@ Ahora, si quiero calcular el producto de mayor precio utilizo \textbf{MAX}:
 \TipoVariable{SELECT MAX(Price) FROM Products}
 \newpage
 
+\section{Subconsultas}
 
-\TipoVariable{}
-
-
+Ahora, el objetivo va a ser relacionar dos tablas. En este caso, vamos a querer relacionar la tabla de Productos (\TipoVariable{Products}) con la tabla de detalles de la orden (\TipoVariable{OrderDetails}) porque queremos obtener la cantidad de productos que se vendieron por cada producto y saber cual es el que genera mas ganancias. Con la tabla \TipoVariable{OrderDetails} podemos calcular cual es producto (de acuerdo a su \TipoVariable{ProductID}) que se vende mas veces pero eso no significa necesariamente que sea el que genera mas ganancia. Por ejemplo, puede haber un producto (supongamos \TipoVariable{ProductID = 2}) que se haya vendido 20 veces y su precio sea de 1USD y puede haber otro producto (supongamos \TipoVariable{ProductID = 5}) que se haya vendido solo 1 vez pero su precio sea de 200USD y observamos que es mayor la ganancia del producto con \TipoVariable{ProductID = 5} que la del producto con \TipoVariable{ProductID = 2}.
+\newline
+\newline
+Entonces, para resolver esto vamos a usar las \textbf{Subconsultas} porque en la tabla \TipoVariable{OrderDetails} tengo el \TipoVariable{ProductID} con la cantidad \TipoVariable{Quantity} de cada producto vendido. Y en la tabla \TipoVariable{Products} tengo el precio (Price) y el \TipoVariable{ProductID} de cada producto para poder realizar precio con cantidad de ventas de cada producto.
+\newline
+\newline
+\textbf{Ejemplo}
+\newline
+\newline
+Comenzamos consultando los campos \TipoVariable{ProductID} y \TipoVariable{Quantity} de la tabla \TipoVariable{OrderDetails} ejecutando lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT ProductID, Quantity FROM OrderDetails}
+\newline
+\newline
+Ahora, supongamos que quiero ver el nombre del producto pero este campo no lo tengo en la tabla \TipoVariable{OrderDetails} sino en la tabla \TipoVariable{Products}. Y lo puedo acceder a través de su \TipoVariable{ProductID} que se encuentra en ambas tablas.
+\newline
+\newline
+Entonces, para realizar esto ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT ProductID, Quantity, (SELECT ProductName from Products WHERE OrderDetails.ProductID = ProductID) as nombre\_producto FROM OrderDetails}
+\newline
+\newline
+Por lo tanto, devolvemos de la tabla \TipoVariable{OrderDetails} los campos \TipoVariable{ProductID}, \TipoVariable{Quantity} y el campo resultante de la subconsulta que renombrados como \TipoVariable{nombre\_producto}.
+\newline
+\newline
+El campo \TipoVariable{nombre\_producto} es el resultante de la subconsulta:
+\newline
+\newline
+\TipoVariable{SELECT ProductName from Products WHERE OrderDetails.ProductID = ProductID}
+\newline
+\newline
+En este caso, por cada \TipoVariable{ProductID} de la tabla \TipoVariable{OrderDetails}, busca en la tabla \TipoVariable{Products} el \TipoVariable{ProductID} que coincida con el \TipoVariable{ProductID} de la tabla \TipoVariable{OrderDetails} y retorna el \TipoVariable{ProductName} que se encuentra en la tabla \TipoVariable{Products}.
+\newline
+\newline
+Ahora, queremos ver cual es el producto que mas recaudo. Para ello, ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT ProductID, SUM(Quantity) as total\_vendido,}
+\newline
+\TipoVariable{(SELECT Price from Products WHERE OrderDetails.ProductID = ProductID) as Price,}
+\newline
+\TipoVariable{(SELECT ProductName from Products WHERE OrderDetails.ProductID = ProductID) as Name,}
+\newline
+\TipoVariable{ROUND(SUM(Quantity)) * (SELECT Price from Products WHERE OrderDetails.ProductID = ProductID) as Total\_recaudado}
+\newline
+\TipoVariable{FROM OrderDetails}
+\newline
+\TipoVariable{GROUP BY ProductID}
+\newline
+\TipoVariable{ORDER BY Total\_recaudado DESC}
+\newpage
+Ahora, si queremos filtrar aquellos productos donde sus precios sean mayores a 40USD y que no se muestre el campo \TipoVariable{Price}, ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT ProductID, SUM(Quantity) as total\_vendido,}
+\newline
+\TipoVariable{(SELECT ProductName from Products WHERE OrderDetails.ProductID = ProductID) as Name,}
+\newline
+\TipoVariable{ROUND(SUM(Quantity)) * (SELECT Price from Products WHERE OrderDetails.ProductID = ProductID) as Total\_recaudado}
+\newline
+\TipoVariable{FROM OrderDetails}
+\newline
+\TipoVariable{WHERE (SELECT Price from Products WHERE OrderDetails.ProductID = ProductID) $>$ 40}
+\newline
+\TipoVariable{GROUP BY ProductID}
+\newline
+\TipoVariable{ORDER BY Total\_recaudado DESC}
+\newline
+\newline
+Ahora, si queremos realizar la misma consulta pero también queremos mostrar el campo \TipoVariable{Price}, ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT ProductID, SUM(Quantity) as total\_vendido,}
+\newline
+\TipoVariable{(SELECT Price from Products WHERE OrderDetails.ProductID = ProductID) as Price,}
+\newline
+\TipoVariable{(SELECT ProductName from Products WHERE OrderDetails.ProductID = ProductID) as Name,}
+\newline
+\TipoVariable{ROUND(SUM(Quantity)) * (SELECT Price from Products WHERE OrderDetails.ProductID = ProductID) as Total\_recaudado}
+\newline
+\TipoVariable{FROM OrderDetails}
+\newline
+\TipoVariable{WHERE Price > 40}
+\newline
+\TipoVariable{GROUP BY ProductID}
+\newline
+\TipoVariable{ORDER BY Total\_recaudado DESC}
+\newline
+\newline
+Ahora, si quiero obtener solo el campo \TipoVariable{Price} de esta subconsulta, ejecuto lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT Price FROM (}
+\newline
+\TipoVariable{SELECT ProductID, SUM(Quantity) as total\_vendido,}
+\newline
+\TipoVariable{(SELECT Price from Products WHERE OrderDetails.ProductID = ProductID) as Price,}
+\newline
+\TipoVariable{(SELECT ProductName from Products WHERE OrderDetails.ProductID = ProductID) as Name,}
+\newline
+\TipoVariable{ROUND(SUM(Quantity)) * (SELECT Price from Products WHERE OrderDetails.ProductID = ProductID) as Total\_recaudado}
+\newline
+\TipoVariable{FROM OrderDetails}
+\newline
+\TipoVariable{WHERE Price $>$ 40}
+\newline
+\TipoVariable{GROUP BY ProductID}
+\newline
+\TipoVariable{ORDER BY Total\_recaudado DESC)}
+\newline
+\newline
+\textbf{Ejercicio 2}
+\newline
+\newline
+Ahora, supongamos que queremos ver a aquellos empleados que lograron vender mas cantidad de unidades que el promedio. Entonces, comenzamos viendo el nombre (\TipoVariable{FirstName}) y apellido (\TipoVariable{LastName}) de los empleados (\TipoVariable{Employees}) ejecutando: 
+\newline
+\newline
+\TipoVariable{SELECT FirstName, LastName FROM Employees}
+\newline
+\newline
+Ahora, vamos a solicitar la cantidad vendida de cada uno de los empleados con la siguiente subconsulta: 
+\newline
+\newline
+\TipoVariable{SELECT FirstName, LastName, (}
+\newline
+\TipoVariable{SELECT SUM(od.Quantity) FROM [Orders]  o, [OrderDetails] od}
+\newline
+\TipoVariable{WHERE o.EmployeeID = e.EmployeeID AND o.orderID = od.orderID}
+\newline
+\TipoVariable{) as Unidades\_totales}
+\newline
+\TipoVariable{FROM [Employees] e}
+\newpage
+Ahora, como queremos seleccionar a aquellos empleados tales que las \TipoVariable{Unidades\_totales} sean mayor al promedio podriamos intentar ejecutar \TipoVariable{WHERE Unidades\_totales $>$  AVG(Unidades\_totales)} pero esto no se puede. Entonces, creamos una subconsulta virtual que vuelva a pedir la cantidad de \TipoVariable{Unidades\_totales}, calculamos el promedio y comparamos con \TipoVariable{Unidades\_totales} de la siguiente manera:
+\newline
+\newline
+\TipoVariable{SELECT FirstName, LastName, (}
+\newline
+\TipoVariable{SELECT SUM(od.Quantity) FROM [Orders]  o, [OrderDetails] od}
+\newline
+\TipoVariable{WHERE o.EmployeeID = e.EmployeeID AND o.orderID = od.orderID}
+\newline
+\TipoVariable{) as Unidades\_totales}
+\newline
+\TipoVariable{FROM [Employees] e}
+\newline
+\TipoVariable{WHERE Unidades\_totales > (SELECT AVG(Unidades\_totales) FROM (SELECT}
+\newline
+\TipoVariable{(SELECT SUM(od.Quantity) FROM [Orders]  o, [OrderDetails] od}
+\newline
+\TipoVariable{WHERE o.EmployeeID = e2.EmployeeID AND o.orderID = od.orderID}
+\newline
+\TipoVariable{) as Unidades\_totales}
+\newline
+\TipoVariable{FROM [Employees] e2}
+\newline
+\TipoVariable{GROUP BY e2.EmployeeID}
+\newline
+\TipoVariable{)}
+\newline
+\TipoVariable{) }
 
 
 
