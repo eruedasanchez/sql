@@ -170,8 +170,9 @@
 
 \newpage
 
+\section{Clausulas}
 
-\section{Clausula SELECT}
+\subsection{Clausula SELECT}
 
 \TipoVariable{SELECT * FROM users} se utiliza para seleccionar todo desde la tabla \TipoVariable{users}. Ahora, vamos a insertar en la tabla users los campos (columnas) name, surname y age de la siguiente manera:
 \newline
@@ -341,7 +342,7 @@ Ademas, podemos ordenar los registros del campo ProductName ejecutando lo siguie
 Por lo tanto, primero solo se deja la primera aparición de cada producto y luego se ordena los mismos de manera decreciente.
 \newpage
 
-\section{Clausula WHERE}
+\subsection{Clausula WHERE}
 
 Supongamos que queremos ver cual es el nombre asociado al \TipoVariable{productId} numero 14. Entonces, comenzamos ejecutando:
 \newline
@@ -375,7 +376,7 @@ Ahora, supongamos que queremos eliminar el registro \TipoVariable{NULL} con \Tip
 \newline
 Observemos que no es necesario escribir \TipoVariable{*} luego del \TipoVariable{DELETE}.
 
-\section{Clausula UPDATE}
+\subsection{Clausula UPDATE}
 
 Supongamos que queremos el precio del producto \TipoVariable{Chais} (\TipoVariable{ProductID = 1}) que es de 18USD por 20USD. Para ello, ejecutamos:
 \newline
@@ -395,14 +396,14 @@ Por ejemplo, \TipoVariable{UPDATE Products SET Price = 20, ProductName = 'Chais 
 Para modificar el campo \TipoVariable{Price} y \TipoVariable{ProductName}.   
 \newpage
 
-\section{Clausula AND}
+\subsection{Clausula AND}
 
 Ahora, vamos a la tabla de clientes (Customers). Entonces, si queremos consultar por aquellos que se encuentran entre el \TipoVariable{CustomerId 50} inclusive y el \TipoVariable{CustomerId 55} exclusive, utilizamos la clausula \TipoVariable{AND} de la siguiente manera:
 \newline
 \newline
 \TipoVariable{SELECT * FROM Customers WHERE CustomerId $>$=  50 AND CustomerId $<$ 55}
 
-\section{Clausula OR}
+\subsection{Clausula OR}
 
 Ahora, vamos a la tabla de empleados (Employees) aplicando \TipoVariable{SELECT * FROM Employees}.
 \newline
@@ -412,12 +413,216 @@ Luego, queremos ver los datos de las empleadas Nancy o Anne. Para ello, aplicamo
 \newline
 \TipoVariable{SELECT * FROM Employees WHERE FirstName = $"$Nancy$"$ OR FirstName = $"$Anne$"$}
 
-\section{Clausula NOT}
+\subsection{Clausula NOT}
 
 Volviendo a la tabla de productos (Products), queremos acceder a todos aquellos productos donde su precio no es mayor a 40. Para ello, utilizamos la cláusula \TipoVariable{NOT} de la siguiente manera:
 \newline
 \newline
 \TipoVariable{SELECT * FROM Products WHERE NOT Price $>$ 40}  
+
+\subsection{Clausula LIMIT}
+
+Ahora, volvemos a la tabla Customers y queremos obtener los primeros 5 clientes a partir del CustomerID 50 y que el país del cliente no sea Alemania (Germany). Entonces, usamos la cláusula LIMIT para realizar esta solicitud de la siguiente manera:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Customers WHERE CustomerID $>=$ 50 AND NOT Country = "Germany" LIMIT 5}
+\newline
+\newline
+Finalmente, podemos ordenar esta solicitud aplicando \TipoVariable{ORDER BY} de la siguiente manera:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Customers WHERE CustomerID >= 50 AND NOT Country = "Germany" ORDER BY RANDOM() LIMIT 5}
+\newpage
+
+\subsection{Cláusula GROUP BY y HAVING}
+
+La clausula \textbf{GROUP BY} se utiliza para agrupar uno o varios registros según uno o varios valores de las columnas (campos).
+\newline
+\newline
+Supongamos que queremos calcular el precio promedio de los productos de acuerdo a los proveedores y ordenarlos de manera decreciente. Para ello ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT SupplierID, ROUND(AVG(Price)) as promedio from Products GROUP BY SupplierID ORDER BY promedio DESC}
+\newline
+\newline
+Ahora queremos seleccionar el nombre del producto (\TipoVariable{ProductName}) también, ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT ProductName, SupplierID, ROUND(AVG(Price)) as promedio from Products GROUP BY SupplierID ORDER BY promedio DESC}
+\newline
+\newline
+Observemos que el \TipoVariable{ProductName} que retorna es aquel que figura primero con el \TipoVariable{SupplierID} correspondiente.
+\newline
+\newline
+La clausula \TipoVariable{HAVING} nos sirve para realizar filtrado de grupos. A diferencia de la clase \TipoVariable{WHERE} que nos sirve para realizar filtrado de registros.
+\newline
+\newline
+Entonces, si queremos calcular el promedio de los productos de acuerdo a su \TipoVariable{SupplierID}, agruparlos y mostrar aquellos en los que el promedio es mayor a 40 ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT SupplierID, ROUND(AVG(Price)) as promedio from Products GROUP BY SupplierID HAVING promedio $>$ 40}
+\newline
+\newline
+Observemos que aca no podemos usar la clausula \TipoVariable{WHERE} porque queremos mostrar el promedio que es resultante de una función de agregación \TipoVariable{ROUND(AVG(Price))} y no de un registro.
+\newpage
+
+\section{Operadores}
+
+\subsection{Operador !=}
+
+Es un operador de comparación.
+ 
+\subsection{Operador BETWEEN}
+
+El operador \textbf{Between} es un operador de comparación que se utiliza para seleccionar valores en un rango especifico.
+\newline
+\newline
+Supongamos ahora que queremos seleccionar todos aquellos productos donde su precio esta en el rango de 20 a 40 USD.
+\newline
+\newline
+Para ello ejecutamos la siguiente linea:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products WHERE Price BETWEEN 20 AND 40}
+\newline
+\newline
+También podemos combinarlo con los operadores \TipoVariable{AND} y \TipoVariable{OR} como por ejemplo:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products WHERE Price BETWEEN 20 AND 40 AND CategoryID = 6}
+\newline
+\newline
+El operador BETWEEN también nos sirve para utilizarlo con fechas. Por ejemplo, si queremos filtrar a aquellos empleados que nacieron entre el año 1960 y 1970 ejecutamos lo siguiente: 
+\newline
+\newline
+\TipoVariable{SELECT * FROM Employees WHERE BirthDate BETWEEN "1960-0-1" AND "1970-0-1"}
+\newline
+\newline
+Observamos también que los limites son inclusivos y que siempre se pasan del limite menor al limite mayor.
+
+\subsection{Operador LIKE}
+
+El operador \textbf{Like} es un operador de comparación utilizado para buscar y filtrar registros en función de ciertos patrones de cadena de texto.
+\newline
+\newline
+Por ejemplo, si queremos filtrar todos los empleados con apellido \TipoVariable{Fuller} podemos ejecutar lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Employees WHERE LastName LIKE "Fuller"}
+\newline
+\newline
+Esencialmente, utilizar \TipoVariable{=} y \TipoVariable{LIKE} es lo mismo pero \TipoVariable{LIKE} tiene ciertos caracteres especiales que nos permiten realizar lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Employees WHERE LastName LIKE "F\%"}. En este caso, estamos realizando una búsqueda de aquellos apellidos que comienzan con \TipoVariable{F} pero no me importa como siguen.
+\newline
+\newline
+\TipoVariable{SELECT * FROM Employees WHERE LastName LIKE "\%r"}. En este caso, estamos realizando una búsqueda de aquellos apellidos que terminan con r pero no me importa como empiezan.
+\newline
+\newline
+\TipoVariable{SELECT * FROM Employees WHERE LastName LIKE "\%a\%"}. En este caso, estamos realizando una búsqueda de aquellos apellidos que tienen la letra a en alguna parte del \TipoVariable{LastName}.
+\newline
+\newline
+\TipoVariable{SELECT * FROM Employees WHERE LastName LIKE \#Full\_\_"}. En este caso, estamos realizando una búsqueda de aquellos apellidos que comienzan con \TipoVariable{Full} y tienen dos caracteres mas pero no me interesan cuales son. Esa es la función del caracteres especial.
+\newpage
+
+\subsection{Operador IS NULL y Operador IS NOT NULL}
+
+Supongamos ahora que queremos obtener unicamente aquellos productos que no son nulos y ordenarlos ascendentemente por \TipoVariable{ProductName}. Para ello, ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products WHERE ProductName IS NOT NULL ORDER BY ProductName ASC}
+\newline
+\newline
+Si queremos obtener unicamente aquellos productos que son nulos y ordenarlos descendentemente por ProductName, ejecutamos lo siguiente:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products WHERE ProductName IS NOT NULL ORDER BY ProductName DESC}
+
+\subsection{Operador IN}
+
+Introducción a las subconsultas.
+\newline
+\newline
+Supongamos que queremos seleccionar los productos de los proveedores 3,4,5 y 6. Una opción es ejecutar:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products WHERE SupplierID = 3 OR SupplierID = 4 OR SupplierID = 5 OR SupplierID = 6}
+\newline
+\newline
+La opción mas recomendada es usar el operador \TipoVariable{IN} (funciona como un pertenece en conjuntos), es decir, podemos ejecutar:
+\newline
+\newline
+\TipoVariable{SELECT * FROM Products WHERE SupplierID IN (3,4,5,6)}
+\newpage
+
+\section{Funciones de agregación}
+
+Las \textbf{funciones de agregación} nos permiten agregar datos, resumirlos e incluso trabajar con estadísticas sobre los datos.
+\newline
+\newline
+Supongamos que quiero contar la cantidad de nombres que hay en la tabla de empleados y por ende, la cantidad de empleados que tengo. Entonces, ejecuto:
+\newline
+\newline
+\TipoVariable{SELECT count(firstName) FROM Employees}
+\newline
+\newline
+A esto lo permite la función \TipoVariable{count()} que cuenta la cantidad de registros que tiene asociado un campo.
+\newline
+\newline
+Por defecto, me devuelve el resultado con el nombre del campo \TipoVariable{count(firstName)} pero si lo quiero renombrado utilizo \TipoVariable{AS}, es decir:
+\newline
+\newline
+\TipoVariable{SELECT count(firstName) AS Cantidad\_de\_nombres FROM Employees}
+\newline
+\newline
+Ahora, si quiero sumar todos los precios de la tabla Products utilizo la función SUM(), es decir:
+\newline
+\newline
+\TipoVariable{SELECT SUM(Price) AS Suma\_precios FROM Products}
+\newline
+\newline
+Si queremos calcular el promedio de los precios, utilizo la función \TipoVariable{AVG()} de la siguiente manera:
+\newline
+\newline
+\TipoVariable{SELECT AVG(Price) AS promedio FROM Products}
+\newline
+\newline
+Si queremos redondear a entero el promedio de los precios, utilizo la función \TipoVariable{ROUND()} de la siguiente manera:
+\newline
+\newline
+\TipoVariable{SELECT ROUND(AVG(Price)) AS promedio\_redondeado FROM Products}
+\newline
+\newline
+Ahora, si quiero redondear por dos decimales ejecuto:
+\newline
+\newline
+\TipoVariable{SELECT ROUND(AVG(Price), 2) AS promedio\_redondeado\_dos\_unidades FROM Products}
+\newline
+\newline
+Ahora, si quiero calcular el producto de menor precio utilizo \textbf{MIN}:
+\newline
+\newline
+\TipoVariable{SELECT MIN(Price) FROM Products}
+\newline
+\newline
+Ademas, si quiero mostar el nombre del producto de menor precio tambien ejecuto:
+\newline
+\newline
+\TipoVariable{SELECT ProductName, MIN(Price) FROM Products}
+\newline
+\newline
+Ahora, si quiero calcular el producto de mayor precio utilizo \textbf{MAX}:
+\newline
+\newline
+\TipoVariable{SELECT MAX(Price) FROM Products}
+\newpage
+
+
+\TipoVariable{}
+
+
+
 
 
 
